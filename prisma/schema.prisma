@@ -1,0 +1,224 @@
+// NCB — Prisma schema
+// Datasource: Turso (libSQL / hosted SQLite) via driver adapter.
+// Table names are mapped to the existing names with @@map so the
+// imported data drops straight in.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Testament {
+  id              Int      @id @default(autoincrement())
+  name            String
+  displayPosition Int      @map("display_position")
+  createdAt       String?  @map("created_at")
+  updatedAt       String?  @map("updated_at")
+  books           Book[]
+
+  @@map("testaments")
+}
+
+model Book {
+  id              Int       @id @default(autoincrement())
+  name            String
+  displayPosition Int       @map("display_position")
+  introduction    String
+  testamentId     Int       @map("testament_id")
+  createdAt       String?   @map("created_at")
+  updatedAt       String?   @map("updated_at")
+  testament       Testament @relation(fields: [testamentId], references: [id])
+  chapters        Chapter[]
+
+  @@index([testamentId])
+  @@map("books")
+}
+
+model Chapter {
+  id              Int      @id @default(autoincrement())
+  name            String
+  heading         String?
+  audioUrl        String?  @map("audio_url")
+  displayPosition Int      @map("display_position")
+  bookId          Int      @map("book_id")
+  createdAt       String?  @map("created_at")
+  updatedAt       String?  @map("updated_at")
+  book            Book     @relation(fields: [bookId], references: [id])
+  verses          Verse[]
+
+  @@index([bookId])
+  @@map("chapters")
+}
+
+model Verse {
+  id                Int                @id @default(autoincrement())
+  verse             String // stored as HTML
+  verseNo           String             @map("verse_no")
+  order             Int
+  chapterId         Int                @map("chapter_id")
+  commentaryContent String?            @map("commentary_content")
+  commentaryTitle   String?            @map("commentary_title")
+  createdAt         String?            @map("created_at")
+  updatedAt         String?            @map("updated_at")
+  chapter           Chapter            @relation(fields: [chapterId], references: [id])
+  footnotes         FootnoteVerse[]
+  commentaries      CommentaryVerse[]
+
+  @@index([chapterId])
+  @@index([order])
+  @@map("verses")
+}
+
+model Footnote {
+  id        Int             @id @default(autoincrement())
+  createdAt String?         @map("created_at")
+  updatedAt String?         @map("updated_at")
+  verses    FootnoteVerse[]
+
+  @@map("footnotes")
+}
+
+// Join table: a "cross reference" links verses to a footnote/commentary
+model FootnoteVerse {
+  id         Int      @id @default(autoincrement())
+  verseId    Int      @map("verse_id")
+  footnoteId Int      @map("footnote_id")
+  createdAt  String?  @map("created_at")
+  updatedAt  String?  @map("updated_at")
+  verse      Verse    @relation(fields: [verseId], references: [id])
+  footnote   Footnote @relation(fields: [footnoteId], references: [id])
+
+  @@index([verseId])
+  @@index([footnoteId])
+  @@map("footnote_verse")
+}
+
+model Commentary {
+  id        Int               @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt String?           @map("created_at")
+  updatedAt String?           @map("updated_at")
+  verses    CommentaryVerse[]
+
+  @@map("commentaries")
+}
+
+model CommentaryVerse {
+  id           Int        @id @default(autoincrement())
+  commentaryId Int        @map("commentary_id")
+  verseId      Int        @map("verse_id")
+  createdAt    String?    @map("created_at")
+  updatedAt    String?    @map("updated_at")
+  commentary   Commentary @relation(fields: [commentaryId], references: [id])
+  verse        Verse      @relation(fields: [verseId], references: [id])
+
+  @@index([commentaryId])
+  @@index([verseId])
+  @@map("commentary_verse")
+}
+
+model Lexicon {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  category    String
+  createdAt   String? @map("created_at")
+  updatedAt   String? @map("updated_at")
+
+  @@map("lexicons")
+}
+
+// --- Static single-record pages ---
+model Introduction {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("introductions")
+}
+
+model Preface {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("prefaces")
+}
+
+model Copyright {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("copyrights")
+}
+
+model Collaborator {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("collaborators")
+}
+
+model Presentation {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("presentations")
+}
+
+model ContactUs {
+  id        Int     @id @default(autoincrement())
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("contact_us")
+}
+
+model Message {
+  id        Int     @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt String? @map("created_at")
+  updatedAt String? @map("updated_at")
+
+  @@map("messages")
+}
+
+model Banner {
+  id           Int     @id @default(autoincrement())
+  desktopImage String? @map("desktop_image")
+  mobileImage  String? @map("mobile_image")
+  createdAt    String? @map("created_at")
+  updatedAt    String? @map("updated_at")
+
+  @@map("banners")
+}
+
+// Admin users only (not public)
+model User {
+  id              Int     @id @default(autoincrement())
+  name            String
+  email           String  @unique
+  emailVerifiedAt String? @map("email_verified_at")
+  password        String
+  rememberToken   String? @map("remember_token")
+  createdAt       String? @map("created_at")
+  updatedAt       String? @map("updated_at")
+
+  @@map("users")
+}

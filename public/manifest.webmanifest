@@ -1,0 +1,12 @@
+{
+  "name": "New Community Bible",
+  "short_name": "NCB",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#e41f2c",
+  "theme_color": "#e41f2c",
+  "icons": [
+    { "src": "/icon.png", "sizes": "250x250", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-icon.png", "sizes": "250x250", "type": "image/png", "purpose": "maskable" }
+  ]
+}
